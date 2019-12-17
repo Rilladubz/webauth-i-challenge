@@ -28,6 +28,8 @@ router.post("/login", (req, res) => {
     .first()
     .then(user => {
       if (user && bcrypt.compareSync(password, user.password)) {
+        req.session.user = user;
+        console.log(req.session);
         res.status(200).json({ message: `Welcome ${user.username}` });
       } else {
         res.status(401).json({ UnauthorizedMsg: "THOU SHALL NOT PASS!" });
@@ -36,6 +38,21 @@ router.post("/login", (req, res) => {
     .catch(err => {
       res.status(500).json({ errorMessage: "WOMP, YOU SUCK" });
     });
+});
+
+router.get("/logout", (req, res) => {
+  if (req.session) {
+    req.session.destroy(err => {
+      if (err) {
+        res.json({
+          errorMessage:
+            "Error occured while trying to end this session please try again."
+        });
+      } else {
+        res.status(200).json({ message: "you never were here to begin with" });
+      }
+    });
+  }
 });
 
 module.exports = router;
